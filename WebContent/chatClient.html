@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>chatClient.html</title>
+        <style>
+            body {
+                margin: 0 1vw;
+            }
+            .container {
+                width: 78vw;
+                margin: 1em 0em;
+                display: flex;
+            }
+            .container.left {
+                margin-right: 20vw;
+                justify-content: flex-start;
+            }
+            .container.right {
+                margin-left: 20vw;
+                justify-content: flex-end;
+            }
+            .item {
+                border: 5px solid;
+                border-radius: 10px;
+                color: black;
+            }
+            .item.right {
+                background-color: pink;
+                border-color: pink;
+            }
+            .item.left {
+                background-color: lightgreen;
+                border-color: lightgreen;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>メッセージを入力してください。</h2>
+        <input id="message">
+        <button onclick="send()">送信</button>
+        <hr />
+        <button onclick="leave()">終了</button>
+        <div id="history"></div>
+        <script>
+            const ws = new WebSocket("ws://chat.local:8080/Chat/chat");
+            ws.onmessage = function(e){
+	            let obj = JSON.parse(e.data);
+	            let side = obj.from == "me" ? "right" : "left";
+	            let body = obj.from == "SERVER" ? "[SERVER] " + obj.body : obj.body;
+	            let h = document.querySelector("#history");
+	            h.innerHTML += "<div class='container " + side + "'>"
+	                + "<div class='item " + side + "'>" + body  + "</div></div>";
+            }
+
+            function send(){
+	            let m = document.querySelector("#message");
+	            ws.send(m.value);
+            }
+            
+            function leave(){
+            	ws.close();
+            }
+        </script>
+    </body>
+</html>
